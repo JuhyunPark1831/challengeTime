@@ -3,13 +3,19 @@ package com.sideProject.challengeTime.domain.challenge.entity;
 
 import com.sideProject.challengeTime.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserChallenge {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "challengeMember_id")
+    @Column(name = "userChallenge_id")
     private Long Id;
 
     @ManyToOne

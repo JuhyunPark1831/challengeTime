@@ -6,6 +6,8 @@ import com.sideProject.challengeTime.domain.challenge.service.ChallengeService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/challenge")
 @AllArgsConstructor
@@ -13,14 +15,13 @@ public class ChallengeController {
     private ChallengeService challengeService;
 
     @PostMapping("/create")
-    public String createChallenge(@RequestBody ChallengeDto.ChallengeRequestDto challengeRequestDto) {
+    public void createChallenge(@RequestBody ChallengeDto.ChallengeRequestDto challengeRequestDto) {
         challengeService.createChallenge(challengeRequestDto);
-        return "챌린지 생성";
     }
 
     @GetMapping("/delete/{challengeId}")
-    public String deleteChallenge() {
-        return "챌린지 삭제";
+    public void deleteChallenge(@PathVariable Long challengeId) {
+        challengeService.deleteChallenge(challengeId);
     }
 
     @PostMapping("/start")

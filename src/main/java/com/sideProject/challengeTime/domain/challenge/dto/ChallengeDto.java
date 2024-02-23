@@ -15,8 +15,4 @@ public class ChallengeDto {
         private Long creatorId;
         List<RuleDto> rules;
     }
-
-    public static class ChallengeResponseDto {
-
-    }
 }
