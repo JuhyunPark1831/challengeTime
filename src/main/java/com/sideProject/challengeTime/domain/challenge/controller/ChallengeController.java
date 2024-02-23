@@ -2,6 +2,7 @@ package com.sideProject.challengeTime.domain.challenge.controller;
 
 
 import com.sideProject.challengeTime.domain.challenge.dto.ChallengeDto;
+import com.sideProject.challengeTime.domain.challenge.dto.UserChallengeDto;
 import com.sideProject.challengeTime.domain.challenge.service.ChallengeService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,8 @@ public class ChallengeController {
     }
 
     @PostMapping("/start")
-    public String startChallenge() {
-        return "챌린지 참여";
+    public void startChallenge(@RequestBody UserChallengeDto.UserChallengeRequestDto userChallengeRequestDto) {
+        challengeService.startChallenge(userChallengeRequestDto);
     }
 
     @PostMapping("/end")

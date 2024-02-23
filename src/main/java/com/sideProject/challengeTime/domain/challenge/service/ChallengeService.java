@@ -1,6 +1,7 @@
 package com.sideProject.challengeTime.domain.challenge.service;
 
 import com.sideProject.challengeTime.domain.challenge.dto.ChallengeDto;
+import com.sideProject.challengeTime.domain.challenge.dto.UserChallengeDto;
 import com.sideProject.challengeTime.domain.challenge.entity.Challenge;
 import com.sideProject.challengeTime.domain.challenge.entity.Rule;
 import com.sideProject.challengeTime.domain.challenge.entity.UserChallenge;
@@ -59,5 +60,13 @@ public class ChallengeService {
         userChallengeRepository.deleteByChallengeId(challengeId);
         rulerepository.deleteByChallengeId(challengeId);
         challengeRepository.deleteById(challengeId);
+    }
+
+    public void startChallenge(UserChallengeDto.UserChallengeRequestDto userChallengeRequestDto) {
+        UserChallenge userChallenge = UserChallenge.builder()
+                .user(userRepository.findById(userChallengeRequestDto.getUserId()).get())
+                .challenge(challengeRepository.findById(userChallengeRequestDto.getChallengeId()).get())
+                .build();
+        userChallengeRepository.save(userChallenge);
     }
 }
