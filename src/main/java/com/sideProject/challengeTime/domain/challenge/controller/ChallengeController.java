@@ -31,7 +31,9 @@ public class ChallengeController {
     }
 
     @PostMapping("/end")
-    public String endChallenge() {
-        return "챌린지 탈퇴";
+    public void endChallenge(@RequestBody UserChallengeDto.UserChallengeRequestDto userChallengeRequestDto) {
+        challengeService.endChallenge(userChallengeRequestDto);
     }
+
+    //todo: 문자 전송 컨트롤러 구현
 }

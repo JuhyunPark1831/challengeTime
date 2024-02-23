@@ -10,3 +10,8 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+
+coolsms:
+  apikey: ${API_KEY}
+  apisecret: ${API_SECRET}
+  fromnumber: ${PHONE_NUMBER}

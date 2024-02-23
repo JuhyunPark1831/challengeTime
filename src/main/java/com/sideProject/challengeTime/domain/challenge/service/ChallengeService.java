@@ -69,4 +69,8 @@ public class ChallengeService {
                 .build();
         userChallengeRepository.save(userChallenge);
     }
+
+    public void endChallenge(UserChallengeDto.UserChallengeRequestDto userChallengeRequestDto) {
+        userChallengeRepository.deleteUserChallengeByUserIdAndChallengeId(userChallengeRequestDto.getUserId(), userChallengeRequestDto.getChallengeId());
+    }
 }
