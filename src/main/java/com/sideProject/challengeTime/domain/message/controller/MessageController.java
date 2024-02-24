@@ -13,6 +13,6 @@ public class MessageController {
 
     @GetMapping("/asdf/qwer")
     public void asdf() {
-        messageService.sendSMS();
+//        messageService.sendSMS();
     }
 }

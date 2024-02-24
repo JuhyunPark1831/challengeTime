@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 @Service
 public class MessageService {
+
     @Value("${coolsms.apikey}")
     private String apiKey;
 
@@ -20,16 +21,15 @@ public class MessageService {
     @Value("${coolsms.fromnumber}")
     private String fromNumber;
 
-    public void sendSMS() {
+    public void sendSMS(String to, String text) {
         System.out.println(apiKey);
         System.out.println(apiSecret);
         System.out.println(fromNumber);
         Message coolsms = new Message(apiKey, apiSecret);
         HashMap<String, String> set = new HashMap<>();
-        set.put("to", "01071967401");
-
+        set.put("to", to);
         set.put("from", fromNumber);
-        set.put("text", "제발 되라..");
+        set.put("text", text);
         set.put("type", "sms");
         set.put("app_version", "test app 1.2");
 
