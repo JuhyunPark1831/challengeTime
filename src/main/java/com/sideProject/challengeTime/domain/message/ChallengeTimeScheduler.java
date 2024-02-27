@@ -1,6 +1,7 @@
 package com.sideProject.challengeTime.domain.message;
 
 import com.sideProject.challengeTime.domain.challenge.entity.Rule;
+import com.sideProject.challengeTime.domain.challenge.entity.URL;
 import com.sideProject.challengeTime.domain.challenge.repository.RuleRepository;
 import com.sideProject.challengeTime.domain.challenge.repository.UserChallengeRepository;
 import com.sideProject.challengeTime.domain.message.service.MessageService;
@@ -66,11 +67,21 @@ public class ChallengeTimeScheduler {
     }
 
     private void sendSMS(Rule rule, User user) {
-        messageService.sendSMS(user.getPhone_number(), createMessage(rule, user.getNickname()));
+        messageService.sendSMS(user.getPhone_number(), createMessage(rule, user));
     }
 
-    private String createMessage(Rule rule, String userNickName) {
-        return userNickName + "님! " + rule.getTitle() + "인증 시간입니다!\n"
-                + "아래 URL로 접근해서 인증해주세요!";
+    private String createMessage(Rule rule, User user) {
+        return user.getNickname() + "님! " + rule.getTitle() + "인증 시간입니다!\n"
+                + "아래 URL로 접근해서 인증해주세요!\n" +
+                "[" + createURL(rule, user);
+    }
+
+    private String createURL(Rule rule, User user) {
+        String url = "/check/" + rule.getId() + "/" + user.getId();
+        URL.builder()
+                .valTime(LocalDateTime.now().plusMinutes(30))
+                .URL(url)
+                .build();
+        return url;
     }
 }
