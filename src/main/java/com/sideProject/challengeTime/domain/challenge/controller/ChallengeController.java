@@ -4,6 +4,7 @@ package com.sideProject.challengeTime.domain.challenge.controller;
 import com.sideProject.challengeTime.domain.challenge.dto.ChallengeDto;
 import com.sideProject.challengeTime.domain.challenge.dto.UserChallengeDto;
 import com.sideProject.challengeTime.domain.challenge.service.ChallengeService;
+import com.sideProject.challengeTime.domain.message.service.MessageService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +14,8 @@ import java.util.List;
 @RequestMapping("/challenge")
 @AllArgsConstructor
 public class ChallengeController {
-    private ChallengeService challengeService;
+    private final ChallengeService challengeService;
+    private final MessageService messageService;
 
     @PostMapping("/create")
     public void createChallenge(@RequestBody ChallengeDto.ChallengeRequestDto challengeRequestDto) {
@@ -34,6 +36,4 @@ public class ChallengeController {
     public void endChallenge(@RequestBody UserChallengeDto.UserChallengeRequestDto userChallengeRequestDto) {
         challengeService.endChallenge(userChallengeRequestDto);
     }
-
-    //todo: 문자 전송 컨트롤러 구현
 }

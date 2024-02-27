@@ -4,8 +4,9 @@ import com.sideProject.challengeTime.domain.challenge.entity.Rule;
 import com.sideProject.challengeTime.domain.challenge.repository.RuleRepository;
 import com.sideProject.challengeTime.domain.challenge.repository.UserChallengeRepository;
 import com.sideProject.challengeTime.domain.message.service.MessageService;
+import com.sideProject.challengeTime.domain.user.entity.User;
+import com.sideProject.challengeTime.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.apache.commons.collections.MultiMap;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,15 +22,16 @@ public class ChallengeTimeScheduler {
     private final MessageService messageService;
     private final RuleRepository repository;
     private final UserChallengeRepository userChallengeRepository;
+    private final UserRepository userRepository;
     private static ConcurrentLinkedQueue<HashMap<Long, LocalDateTime>> challengeTimes = new ConcurrentLinkedQueue<>();
-
-    @Scheduled(fixedDelay = 10000)
+//todo: Rule로 가져오도록 수정
+    @Scheduled(fixedDelay = 10000000)
     public void loadChallengeTime() {
-        List<Object[]> data = repository.findAllChallengeIdAndChallengeTimeOrderByChallengeTimeAsc();
+        List<Rule> data = repository.findAllRulesOrderByChallengeTimeAsc();
         challengeTimes = data.stream()
                 .map(row -> {
                     HashMap<Long, LocalDateTime> map = new HashMap<>();
-                    map.put((Long) row[0], (LocalDateTime) row[1]);
+                    map.put(row.getId(), (LocalDateTime) row.getChallengeTime());
                     return map;
                 })
                 .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
@@ -37,29 +39,38 @@ public class ChallengeTimeScheduler {
     }
     @Scheduled(fixedDelay = 1000)
     public void checkChallengeTime() {
-        if (!challengeTimes.isEmpty()) {
-            HashMap<Long, LocalDateTime> firstChallenge = challengeTimes.peek(); // 큐에서 요소를 삭제하지 않고 가져옴
-            Long challengeId = firstChallenge.keySet().iterator().next();
-            LocalDateTime challengeTime = firstChallenge.get(challengeId);
-            System.out.println("Challenge ID: " + challengeId + ", Challenge Time: " + challengeTime);
-            LocalDateTime currentTime = LocalDateTime.now().withSecond(0).withNano(0); // 초와 나노초 제거
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"); // 원하는 포맷 설정
-            String formattedTime = currentTime.format(formatter); // 포맷에 맞게 문자열 생성
-            System.out.println("Formatted time: " + formattedTime);
-            if (challengeTime.toString().equals(formattedTime)) { // 현재 시간과 도전과제 시간을 비교
-                sendSMS(challengeId);
-                challengeTimes.poll(); // 큐에서 해당 요소를 삭제
-            }
-        } else {
+        if (challengeTimes.isEmpty()) {
             System.out.println("Queue is empty.");
-        } 
+            return;
+        }
+        HashMap<Long, LocalDateTime> firstChallenge = challengeTimes.peek(); // 큐에서 요소를 삭제하지 않고 가져옴
+
+        Long ruleId = firstChallenge.keySet().iterator().next();
+
+        LocalDateTime challengeTime = firstChallenge.get(ruleId);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"); // 원하는 포맷 설정
+        String currentTime = LocalDateTime.now().withSecond(0).withNano(0).format(formatter); // 포맷에 맞게 문자열 생성
+
+        System.out.println("Current Time: " + currentTime);
+        System.out.println("Challenge Time: " + challengeTime);
+
+        if (challengeTime.toString().equals(currentTime)) {
+            sendEachSMS(repository.findById(ruleId).get());
+            challengeTimes.poll(); // 큐에서 해당 요소를 삭제
+        }
     }
 
-    private void sendSMS(Long challengeId) {
-        List<String> userPhoneNumbers = userChallengeRepository.findAllUserPhoneNumberByChallengeId(challengeId);
-        String text = "챌린지 인증 시간입니다! Challenge Id: " + challengeId;
+    private void sendEachSMS(Rule rule) {
+        List<User> users = userChallengeRepository.findAllUsersByChallengeId(rule.getChallenge().getId());
+        users.forEach(user -> sendSMS(rule, user));
+    }
 
-        userPhoneNumbers
-                .forEach(phoneNumber -> messageService.sendSMS(phoneNumber, text));
+    private void sendSMS(Rule rule, User user) {
+        messageService.sendSMS(user.getPhone_number(), createMessage(rule, user.getNickname()));
+    }
+
+    private String createMessage(Rule rule, String userNickName) {
+        return userNickName + "님! " + rule.getTitle() + "인증 시간입니다!\n"
+                + "아래 URL로 접근해서 인증해주세요!";
     }
 }

@@ -1,6 +1,5 @@
 package com.sideProject.challengeTime.domain.message.service;
 
-import net.nurigo.java_sdk.Coolsms;
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import org.json.simple.JSONObject;
@@ -29,8 +28,9 @@ public class MessageService {
         HashMap<String, String> set = new HashMap<>();
         set.put("to", to);
         set.put("from", fromNumber);
+        set.put("subject", "ChallengeTime 인증");
         set.put("text", text);
-        set.put("type", "sms");
+        set.put("type", "lms");
         set.put("app_version", "test app 1.2");
 
         try {
