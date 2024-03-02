@@ -1,17 +1,12 @@
 package com.sideProject.challengeTime.domain.message.service;
 
 import com.sideProject.challengeTime.domain.challenge.entity.Rule;
-import com.sideProject.challengeTime.domain.challenge.entity.URL;
-import com.sideProject.challengeTime.domain.challenge.entity.UserChallenge;
 import com.sideProject.challengeTime.domain.challenge.repository.UserChallengeRepository;
 import com.sideProject.challengeTime.domain.challenge.service.URLService;
 import com.sideProject.challengeTime.domain.user.entity.User;
-import com.sideProject.challengeTime.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service

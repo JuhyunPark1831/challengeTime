@@ -3,7 +3,6 @@ package com.sideProject.challengeTime.global.util;
 
 import com.sideProject.challengeTime.config.JWTConfig;
 import io.jsonwebtoken.*;
-import jakarta.persistence.Access;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
