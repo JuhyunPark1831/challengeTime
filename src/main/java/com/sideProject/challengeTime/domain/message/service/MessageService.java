@@ -1,44 +1,38 @@
 package com.sideProject.challengeTime.domain.message.service;
 
-import net.nurigo.java_sdk.api.Message;
-import net.nurigo.java_sdk.exceptions.CoolsmsException;
-import org.json.simple.JSONObject;
+import com.sideProject.challengeTime.domain.challenge.entity.Rule;
+import com.sideProject.challengeTime.domain.challenge.entity.URL;
+import com.sideProject.challengeTime.domain.challenge.entity.UserChallenge;
+import com.sideProject.challengeTime.domain.challenge.repository.UserChallengeRepository;
+import com.sideProject.challengeTime.domain.challenge.service.URLService;
+import com.sideProject.challengeTime.domain.user.entity.User;
+import com.sideProject.challengeTime.domain.user.repository.UserRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class MessageService {
+    private final UserChallengeRepository userChallengeRepository;
+    private final MessageAPIService messageAPIService;
+    private final URLService urlService;
 
-    @Value("${coolsms.apikey}")
-    private String apiKey;
+    public void sendEachSMS(Rule rule) {
+        List<User> users = userChallengeRepository.findAllUsersByChallengeId(rule.getChallenge().getId());
+        users.forEach(user -> sendSMS(rule, user));
+    }
 
-    @Value("${coolsms.apisecret}")
-    private String apiSecret;
+    private void sendSMS(Rule rule, User user) {
+        messageAPIService.sendSMS(user.getPhone_number(), createMessage(rule, user));
+    }
 
-    @Value("${coolsms.fromnumber}")
-    private String fromNumber;
-
-    public void sendSMS(String to, String text) {
-        System.out.println(apiKey);
-        System.out.println(apiSecret);
-        System.out.println(fromNumber);
-        Message coolsms = new Message(apiKey, apiSecret);
-        HashMap<String, String> set = new HashMap<>();
-        set.put("to", to);
-        set.put("from", fromNumber);
-        set.put("subject", "ChallengeTime 인증");
-        set.put("text", text);
-        set.put("type", "lms");
-        set.put("app_version", "test app 1.2");
-
-        try {
-            JSONObject object = (JSONObject) coolsms.send(set);
-            System.out.println(object.toString());
-        } catch (CoolsmsException e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getCode());
-        }
+    private String createMessage(Rule rule, User user) {
+        return user.getNickname() + "님! " + rule.getTitle() + "인증 시간입니다!\n"
+                + "아래 URL로 접근해서 인증해주세요!\n" +
+                "[" + urlService.createURL(rule, user);
     }
 }
