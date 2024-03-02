@@ -1,6 +1,6 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
+name: "✅Feature"
+about: Feature 작업 사항을 입력하세요.
 title: ''
 labels: ''
 assignees: ''
@@ -19,3 +19,6 @@ assignees: ''
 
 ### 상세 설명
 [여기에 기능 요청의 자세한 설명을 작성하세요.]
+
+### ETC
+[그 외의 사항을 작성하세요.]
