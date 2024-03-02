@@ -1,11 +1,9 @@
 package com.sideProject.challengeTime.domain.challenge.controller;
 
-import com.sideProject.challengeTime.domain.challenge.entity.Rule;
 import com.sideProject.challengeTime.domain.challenge.entity.URL;
 import com.sideProject.challengeTime.domain.challenge.repository.RuleRepository;
 import com.sideProject.challengeTime.domain.challenge.repository.URLRepository;
 import com.sideProject.challengeTime.domain.challenge.service.URLService;
-import com.sideProject.challengeTime.domain.user.entity.User;
 import com.sideProject.challengeTime.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -43,7 +40,7 @@ public class URLController {
     public String createURL(@PathVariable Long ruleId, @PathVariable Long userId) {
         String url = "/check/" + ruleId + "/" + userId;
         urlRepository.save(URL.builder()
-                .valTime(LocalDateTime.now().plusMinutes(30))
+                .valTime(LocalDateTime.now().plusMinutes(10))
                 .URL(url)
                 .rule(repository.findById(ruleId).get())
                 .user(userRepository.findById(userId).get())
