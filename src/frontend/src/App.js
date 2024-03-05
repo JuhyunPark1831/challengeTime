@@ -1,20 +1,25 @@
-import React, {useEffect, useState} from 'react';
-import axios from 'axios';
+import React, { Component } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Header from './components/common/Header';
+import Index from './components/pages/index';
+import Main from './components/pages/Main';
+import Login from './components/pages/Login';
+import Product from './components/pages/Product';
+import NotFound from './components/common/NotFound';
 
-function App() {
-   const [hello, setHello] = useState('')
-
-    useEffect(() => {
-        axios.get('/api/hello')
-        .then(response => setHello(response.data))
-        .catch(error => console.log(error))
-    }, []);
-
-    return (
-        <div>
-            백엔드에서 가져온 데이터입니다 : {hello}
-        </div>
-    );
-}
-
+const App = () => {
+	return (
+		<div className='App'>
+			<BrowserRouter>
+				<Header />
+				<Routes>
+					<Route path="/" element={<Index />}></Route>
+                    <Route path="/login" element={<Login />}></Route>
+					<Route path="/product/*" element={<Product />}></Route>
+					<Route path="*" element={<NotFound />}></Route>
+				</Routes>
+			</BrowserRouter>
+		</div>
+	);
+};
 export default App;
