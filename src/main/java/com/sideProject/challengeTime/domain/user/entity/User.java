@@ -19,7 +19,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "user_id")
-    private int Id;
+    private Long Id;
 
     @Column
     private String email;
@@ -29,6 +29,9 @@ public class User {
 
     @Column
     private String nickname;
+
+    @Column
+    private String phone_number;
 
     @OneToMany(mappedBy = "user")
     private Set<UserChallenge> userChallenges = new HashSet<>();

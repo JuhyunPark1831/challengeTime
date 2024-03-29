@@ -1,37 +1,35 @@
 package com.sideProject.challengeTime.domain.challenge.entity;
 
+
+import com.sideProject.challengeTime.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Builder
-@Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class Rule {
-
+@NoArgsConstructor
+@Builder
+public class URL {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
     private Long Id;
 
     @Column
-    private String title;
+    private String URL;
 
     @Column
-    private int penalty;
-
-    @Column
-    private LocalDateTime challengeTime;
-
-    @Column
-    private String challengeComment;
+    private LocalDateTime valTime;
 
     @ManyToOne
-    @JoinColumn(name = "challenge_id")
-    private Challenge challenge;
+    @JoinColumn(name = "user_id")
+    User user;
+
+    @ManyToOne
+    @JoinColumn(name = "rule_id")
+    Rule rule;
 }
