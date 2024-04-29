@@ -8,7 +8,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -21,7 +24,7 @@ public class ChallengeTimeScheduler {
     private final MessageService messageService;
     private final URLRepository urlRepository;
 
-    private static ConcurrentLinkedQueue<HashMap<Long, LocalDateTime>> challengeTimes = new ConcurrentLinkedQueue<>();
+    private static ConcurrentLinkedQueue<HashMap<Long, LocalTime>> challengeTimes = new ConcurrentLinkedQueue<>();
 
 //    @Scheduled(fixedDelay = 1000)
 //    public void checkURLValidTime() {
@@ -29,11 +32,11 @@ public class ChallengeTimeScheduler {
 //    }
     @Scheduled(fixedDelay = 10000000)
     public void loadChallengeTime() {
-        List<Rule> data = repository.findAllRulesOrderByChallengeTimeAsc();
+        List<Rule> data = repository.findAllRulesOrderByChallengeTimeAsc(LocalDate.now().getDayOfWeek());
         challengeTimes = data.stream()
                 .map(row -> {
-                    HashMap<Long, LocalDateTime> map = new HashMap<>();
-                    map.put(row.getId(), (LocalDateTime) row.getChallengeTime());
+                    HashMap<Long, LocalTime> map = new HashMap<>();
+                    map.put(row.getId(), row.getChallengeTime());
                     return map;
                 })
                 .collect(Collectors.toCollection(ConcurrentLinkedQueue::new));

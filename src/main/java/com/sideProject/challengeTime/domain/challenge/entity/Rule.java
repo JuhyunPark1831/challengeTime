@@ -6,7 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Builder
@@ -26,7 +28,10 @@ public class Rule {
     private int penalty;
 
     @Column
-    private LocalDateTime challengeTime;
+    private DayOfWeek week;
+
+    @Column
+    private LocalTime challengeTime;
 
     @Column
     private String challengeComment;

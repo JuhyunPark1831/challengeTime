@@ -1,16 +1,53 @@
-import React from 'react';
+import React, {useState, ChangeEvent} from 'react';
 import styled from 'styled-components';
+import {useNavigate} from "react-router-dom";
 
 const LoginForm = () => {
+    const navigate = useNavigate();
+
+    const [email, setemail] = useState("이메일");
+    const [password, setPassword] = useState("비밀번호");
+
+    const onChangeEmail = (event: ChangeEvent<HTMLInputElement>) => {
+        setemail(event.target.value)
+    }
+    const onChangePassword = (event: ChangeEvent<HTMLInputElement>) => {
+        setPassword(event.target.value)
+    }
+
+    const onClickLogin = async () => {
+        navigate('/main')
+        try {
+            const response = await fetch('http://localhost:8080/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (!response.ok) {
+                throw new Error('로그인에 실패했습니다.');
+            }
+
+            const data = await response.text();
+            localStorage.setItem('accessToken', data);
+            // navigate('/main'); // 로그인 성공 후 이동할 페이지 경로
+        } catch (error) {
+            console.error('로그인 에러:', error);
+            // 에러 처리 로직 추가
+        }
+    }
+
     return (
         <FormContainer>
             <FormHeader>Login</FormHeader>
             <Form>
-                <InputLabel>Username</InputLabel>
-                <InputField type="text" />
+                <InputLabel>Email</InputLabel>
+                <InputField type="text" onChange={onChangeEmail}/>
                 <InputLabel>Password</InputLabel>
-                <InputField type="password" />
-                <LoginButton>Login</LoginButton>
+                <InputField type="password" onChange={onChangePassword}/>
+                <LoginButton onClick={onClickLogin}>Login</LoginButton>
             </Form>
         </FormContainer>
     );

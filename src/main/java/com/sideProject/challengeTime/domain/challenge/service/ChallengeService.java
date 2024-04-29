@@ -1,6 +1,7 @@
 package com.sideProject.challengeTime.domain.challenge.service;
 
 import com.sideProject.challengeTime.domain.challenge.dto.ChallengeDto;
+import com.sideProject.challengeTime.domain.challenge.dto.RuleDto;
 import com.sideProject.challengeTime.domain.challenge.dto.UserChallengeDto;
 import com.sideProject.challengeTime.domain.challenge.entity.Challenge;
 import com.sideProject.challengeTime.domain.challenge.entity.Rule;
@@ -12,6 +13,7 @@ import com.sideProject.challengeTime.domain.user.entity.User;
 import com.sideProject.challengeTime.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Transactional
+@Slf4j
 public class ChallengeService {
 
     private final UserRepository userRepository;
@@ -27,9 +30,9 @@ public class ChallengeService {
     private final RuleRepository rulerepository;
     private final UserChallengeRepository userChallengeRepository;
 
-    public void createChallenge(ChallengeDto.ChallengeRequestDto challengeRequestDto) {
-        User creator = userRepository.findById(challengeRequestDto.getCreatorId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + challengeRequestDto.getCreatorId()));
+    public void createChallenge(Long createrId, ChallengeDto.ChallengeRequestDto challengeRequestDto) {
+        User creator = userRepository.findById(createrId)
+                .orElseThrow(() -> new IllegalArgumentException("no exist id"));
 
         Challenge challenge = Challenge.builder()
                 .name(challengeRequestDto.getName())
@@ -40,6 +43,7 @@ public class ChallengeService {
                 .map(ruleDto -> Rule.builder()
                         .title(ruleDto.getTitle())
                         .penalty(ruleDto.getPenalty())
+                        .week(ruleDto.getWeek())
                         .challengeTime(ruleDto.getChallengeTime())
                         .challengeComment(ruleDto.getChallengeComment())
                         .challenge(challenge)
@@ -72,5 +76,26 @@ public class ChallengeService {
 
     public void endChallenge(UserChallengeDto.UserChallengeRequestDto userChallengeRequestDto) {
         userChallengeRepository.deleteUserChallengeByUserIdAndChallengeId(userChallengeRequestDto.getUserId(), userChallengeRequestDto.getChallengeId());
+    }
+
+    public List<ChallengeDto.ChallengeResponseDto> findAllChallenge() {
+        List<Challenge> challenges = challengeRepository.findAll();
+        return challenges.stream().map(challenge ->
+                ChallengeDto.ChallengeResponseDto.of(challenge, userChallengeRepository.findAllUsersByChallengeId(challenge.getId()).size()))
+                .toList();
+    }
+
+    public ChallengeDto.detailChallengeResponseDto findDetialChallenge(Long userId, Long challengeId) {
+        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new IllegalArgumentException("no exist id"));
+        List<RuleDto> rules = rulerepository.findAllByChallenge(challenge)
+                .stream().map(RuleDto::of)
+                .collect(Collectors.toList());
+
+        return ChallengeDto.detailChallengeResponseDto.builder()
+                .name(challenge.getName())
+                .memberNum(userChallengeRepository.findAllUsersByChallengeId(challengeId).size())
+                .rules(rules)
+                .userPenalty(userChallengeRepository.findByUserAndChallenge(userId, challengeId).orElseThrow(() -> new IllegalArgumentException("no exist id")).getPenalty())
+                .build();
     }
 }

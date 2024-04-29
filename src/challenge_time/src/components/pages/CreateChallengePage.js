@@ -3,10 +3,10 @@ import styled from 'styled-components';
 
 const CreateChallengePage = () => {
     const [challengeName, setChallengeName] = useState('');
-    const [rules, setRules] = useState([{ title: '', penalty: '', days: [], times: [], description: '' }]);
+    const [rules, setRules] = useState([{ title: '', penalty: '', days: '', times: '', description: '' }]);
+    const [selectedDay, setSelectedDay] = useState('');
     const [selectedHour, setSelectedHour] = useState('');
     const [selectedMinute, setSelectedMinute] = useState('');
-    const [selectedTimes, setSelectedTimes] = useState([]);
 
     const handleInputChange = (index, event) => {
         const { name, value } = event.target;
@@ -15,8 +15,28 @@ const CreateChallengePage = () => {
         setRules(list);
     };
 
+    const handleDayChange = (index, event) => {
+        const { value } = event.target;
+        setSelectedDay(value);
+        handleInputChange(index, { target: { name: 'days', value } });
+    };
+
+// handleHourChange 함수 추가 부분
+    const handleHourChange = (index, event) => {
+        const { value } = event.target;
+        setSelectedHour(value);
+        handleInputChange(index, { target: { name: 'times', value: `${value}:${selectedMinute}` } });
+    };
+
+// handleMinuteChange 함수 추가 부분
+    const handleMinuteChange = (index, event) => {
+        const { value } = event.target;
+        setSelectedMinute(value);
+        handleInputChange(index, { target: { name: 'times', value: `${selectedHour}:${value}` } });
+    };
+
     const handleAddRule = () => {
-        setRules([...rules, { title: '', penalty: '', days: [], times: [], description: '' }]);
+        setRules([...rules, { title: '', penalty: '', days: '', times: '', description: '' }]);
     };
 
     const handleRemoveRule = (index) => {
@@ -25,109 +45,111 @@ const CreateChallengePage = () => {
         setRules(list);
     };
 
-    const handleHourChange = (event) => {
-        setSelectedHour(event.target.value);
-    };
+    const handleSubmit = async (event) => {
+        event.preventDefault()
+        try {
+            const response = await fetch('http://localhost:8080/challenge/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem("accessToken"),
+                },
+                body: JSON.stringify({
+                    name: challengeName,
+                    rules: rules.map(rule => ({
+                        title: rule.title,
+                        penalty: rule.penalty,
+                        week: rule.days,
+                        challengeTime: rule.times,
+                        challengeComment: rule.description
+                    }))
+                })
+            });
 
-    const handleMinuteChange = (event) => {
-        setSelectedMinute(event.target.value);
-    };
-
-    const handleAddTime = () => {
-        if (selectedHour && selectedMinute) {
-            setSelectedTimes([...selectedTimes, `${selectedHour}:${selectedMinute}`]);
-            setSelectedHour('');
-            setSelectedMinute('');
+            if (!response.ok) {
+                throw new Error('Failed to create challenge');
+            }
+        } catch (error) {
+            console.error('Error creating challenge:', error);
         }
-    };
-
-    const handleRemoveTime = (time) => {
-        setSelectedTimes(selectedTimes.filter(item => item !== time));
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log(challengeName, rules, selectedTimes);
-        // 여기서 새로운 챌린지를 생성하는 작업을 수행할 수 있습니다.
     };
 
     return (
         <Container>
             <CreateChallengeForm onSubmit={handleSubmit}>
-                <h2>Create New Challenge</h2>
-                <InputLabel>Challenge Name:</InputLabel>
+                <h2>새로운 챌린지</h2>
+                <InputLabel>챌린지 이름:</InputLabel>
                 <Input
                     type="text"
                     value={challengeName}
                     onChange={(e) => setChallengeName(e.target.value)}
                     required
                 />
-                <h3>Rules:</h3>
-                {rules.map((rule, index) => (
-                    <RuleContainer key={index}>
-                        <RemoveButton type="button" onClick={() => handleRemoveRule(index)}>-</RemoveButton>
+                <h3>규칙:</h3>
+                {rules.map((rule, ruleIndex) => (
+                    <RuleContainer key={ruleIndex}>
+                        <RemoveButton type="button" onClick={() => handleRemoveRule(ruleIndex)}>-</RemoveButton>
                         <RuleInputs>
-                            <InputLabel>Rule Title:</InputLabel>
+                            <InputLabel>규칙 이름:</InputLabel>
                             <Input
                                 type="text"
                                 name="title"
                                 value={rule.title}
-                                onChange={(e) => handleInputChange(index, e)}
+                                onChange={(e) => handleInputChange(ruleIndex, e)}
                                 required
                             />
-                            <InputLabel>Penalty:</InputLabel>
+                            <InputLabel>벌금:</InputLabel>
                             <Input
                                 type="text"
                                 name="penalty"
                                 value={rule.penalty}
-                                onChange={(e) => handleInputChange(index, e)}
+                                onChange={(e) => handleInputChange(ruleIndex, e)}
                                 required
                             />
-                            <InputLabel>Days:</InputLabel>
+                            <InputLabel>요일:</InputLabel>
                             <CheckboxGroup>
-                                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Friday', 'Everyday'].map(day => (
+                                {['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'].map(day => (
                                     <CheckboxLabel key={day}>
                                         <Checkbox
                                             type="checkbox"
                                             name="days"
                                             value={day}
-                                            checked={rule.days.includes(day)}
-                                            onChange={(e) => handleInputChange(index, e)}
+                                            onChange={(e) => handleDayChange(ruleIndex, e)}
+                                            checked={selectedDay === day}
                                         />
                                         {day}
                                     </CheckboxLabel>
                                 ))}
                             </CheckboxGroup>
-                            <InputLabel>Times:</InputLabel>
+                            <InputLabel>시간:</InputLabel>
                             <TimeSelection>
-                                <HourSelect value={selectedHour} onChange={handleHourChange}>
+                                <HourSelect
+                                    value={selectedHour}
+                                    onChange={(e) => handleHourChange(ruleIndex, e)}
+                                    name="selectedHour"
+                                >
                                     <option value="">Hour</option>
                                     {Array.from({ length: 24 }, (_, i) => (
                                         <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')}</option>
                                     ))}
                                 </HourSelect>
-                                <MinuteSelect value={selectedMinute} onChange={handleMinuteChange}>
+                                <MinuteSelect
+                                    value={selectedMinute}
+                                    onChange={(e) => handleMinuteChange(ruleIndex, e)}
+                                    name="selectedMinute"
+                                >
                                     <option value="">Minute</option>
                                     {Array.from({ length: 60 }, (_, i) => (
                                         <option key={i} value={String(i).padStart(2, '0')}>{String(i).padStart(2, '0')}</option>
                                     ))}
                                 </MinuteSelect>
-                                <AddTimeButton type="button" onClick={handleAddTime}>Add Time</AddTimeButton>
                             </TimeSelection>
-                            <SelectedTimes>
-                                {selectedTimes.map((time, index) => (
-                                    <SelectedTime key={index}>
-                                        {time}
-                                        <RemoveTimeButton type="button" onClick={() => handleRemoveTime(time)}>X</RemoveTimeButton>
-                                    </SelectedTime>
-                                ))}
-                            </SelectedTimes>
-                            <InputLabel>Description:</InputLabel>
+                            <InputLabel>상세 설명:</InputLabel>
                             <Input
                                 type="text"
                                 name="description"
                                 value={rule.description}
-                                onChange={(e) => handleInputChange(index, e)}
+                                onChange={(e) => handleInputChange(ruleIndex, e)}
                                 required
                             />
                         </RuleInputs>
@@ -145,6 +167,7 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
+  margin-top: 200px;
 `;
 
 const CreateChallengeForm = styled.form`
@@ -171,7 +194,7 @@ const Input = styled.input`
 
 const CheckboxGroup = styled.div`
   margin-bottom: 10px;
-  width: 400px;
+  width: 450px;
 `;
 
 const CheckboxLabel = styled.label`
@@ -196,6 +219,7 @@ const RemoveButton = styled.button`
   border-radius: 50%;
   cursor: pointer;
   margin-right: 10px;
+  margin-top: 10px;
 `;
 
 const RuleInputs = styled.div`

@@ -1,7 +1,30 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 
 const Main = () => {
+
+	const [challengeList, setChallengeList] = useState([]);
+
+	useEffect(() => {
+		async function fetchChallengeList() {
+			try {
+				const response = await fetch('http://localhost:8080/challenge/list', {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': 'Bearer ' + localStorage.getItem("accessToken"),
+					},
+				});
+				const data = await response.json();
+				setChallengeList(data);
+			} catch (error) {
+				console.error('Error fetching challenge list', error);
+			}
+		}
+
+		fetchChallengeList();
+	}, []);
+
 	return (
 		<Container>
 			<Box>
@@ -21,18 +44,13 @@ const Main = () => {
 						</tr>
 						</thead>
 						<tbody>
-						<tr>
-							<Td>데이터 1</Td>
-							<Td>데이터 2</Td>
-							<Td>데이터 3</Td>
-						</tr>
-						<tr>
-							<Td>데이터 1</Td>
-							<Td>데이터 2</Td>
-							<Td>데이터 3</Td>
-						</tr>
-
-						{/* 추가적인 행 및 열 데이터를 여기에 추가 */}
+							{challengeList.map(challenge => (
+								<tr key={challenge.id}>
+									<Td>{challenge.name}</Td>
+									<Td>{challenge.nickname}</Td>
+									<Td>{challenge.memberNum}</Td>
+								</tr>
+							))}
 						</tbody>
 					</Table>
 				</TableWrapper>
@@ -49,6 +67,7 @@ const Container = styled.div`
 	align-items: center;
 	height: 100vh;
 	padding: 20px;
+	margin-top: 100px;
 `;
 
 const Box = styled.div`
