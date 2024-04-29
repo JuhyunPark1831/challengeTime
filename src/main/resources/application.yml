@@ -1,12 +1,24 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/osspdb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/challengetime?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${USER_NAME}
     password: ${PASSWORD}
     driver-class-name: com.mysql.jdbc.Driver
   jpa:
-    hibernate.ddl-auto: create
+    hibernate.ddl-auto: update
     properties:
       hibernate:
         format_sql: true
         show_sql: true
+
+coolsms:
+  apikey: ${API_KEY}
+  apisecret: ${API_SECRET}
+  fromnumber: ${PHONE_NUMBER}
+
+custom:
+  url:
+    prefix: ${FRONT_URL}
+
+jwt:
+  secret-key: ${SECRET_KEY}
